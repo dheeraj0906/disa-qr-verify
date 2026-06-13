@@ -50,12 +50,23 @@ router.put('/:id', authenticate, requireRole('super_admin'), validate(stretchSch
   async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;
-      const { name, color_code, road_name } = req.body;
+      const { name, color_code, road_name, start_lat, start_lng, end_lat, end_lng } = req.body;
+      const startExpr = (start_lat != null && start_lng != null)
+        ? `ST_SetSRID(ST_MakePoint(${Number(start_lng)},${Number(start_lat)}),4326)::geography`
+        : 'start_point';
+      const endExpr = (end_lat != null && end_lng != null)
+        ? `ST_SetSRID(ST_MakePoint(${Number(end_lng)},${Number(end_lat)}),4326)::geography`
+        : 'end_point';
       const { rows } = await pool.query(
         `UPDATE stretches
-         SET name=$1, color_code=$2, road_name=$3
-         WHERE id=$4 RETURNING *`,
-        [name, color_code, road_name, id]
+         SET name=$1, color_code=$2, road_name=$3,
+             start_point=${startExpr}, end_point=${endExpr}
+         WHERE id=$4
+         RETURNING id, name, color_code, road_name, status,
+                   ST_AsGeoJSON(start_point) AS start_point,
+                   ST_AsGeoJSON(end_point)   AS end_point,
+                   created_at`,
+        [name, color_code, road_name ?? null, id]
       );
       if (!rows[0]) { res.status(404).json({ error: 'Not found' }); return; }
       res.json(rows[0]);

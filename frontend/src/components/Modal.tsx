@@ -4,9 +4,16 @@ interface Props {
   title: string;
   onClose: () => void;
   children: React.ReactNode;
+  size?: 'sm' | 'md' | 'lg';
 }
 
-export default function Modal({ title, onClose, children }: Props) {
+const SIZE: Record<NonNullable<Props['size']>, string> = {
+  sm: 'max-w-sm',
+  md: 'max-w-lg',
+  lg: 'max-w-2xl',
+};
+
+export default function Modal({ title, onClose, children, size = 'sm' }: Props) {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', handler);
@@ -19,7 +26,7 @@ export default function Modal({ title, onClose, children }: Props) {
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-xl shadow-xl max-w-sm w-full p-6"
+        className={`bg-white rounded-xl shadow-xl ${SIZE[size]} w-full p-6`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
