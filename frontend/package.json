@@ -9,9 +9,11 @@
     "lint": "eslint src --ext ts,tsx"
   },
   "dependencies": {
+    "@types/qrcode": "^1.5.6",
     "axios": "^1.7.2",
     "html5-qrcode": "^2.3.8",
     "leaflet": "^1.9.4",
+    "qrcode": "^1.5.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.24.1"

@@ -1,3 +1,12 @@
+import AdminLayout from '../../components/AdminLayout';
+
 export default function AdminReportsPage() {
-  return <div className="p-4 text-gray-700">Admin — Reports — coming in Step 9</div>;
+  return (
+    <AdminLayout>
+      <div className="p-6">
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">Reports</h1>
+        <p className="text-gray-500 text-sm">CSV export — coming in Step 9.</p>
+      </div>
+    </AdminLayout>
+  );
 }
