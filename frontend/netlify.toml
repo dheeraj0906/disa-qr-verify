@@ -3,6 +3,14 @@
   command = "npm run build"
   publish = "dist"
 
+# Proxy /api/* to the Render backend — keeps VITE_API_URL out of the build
+[[redirects]]
+  from   = "/api/*"
+  to     = "https://disa-qr-verify-api.onrender.com/api/:splat"
+  status = 200
+  force  = true
+
+# SPA fallback — all other routes → index.html
 [[redirects]]
   from   = "/*"
   to     = "/index.html"
