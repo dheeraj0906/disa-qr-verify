@@ -1,5 +1,5 @@
 import { useState, FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { AuthUser } from '../types';
@@ -7,6 +7,8 @@ import { AuthUser } from '../types';
 export default function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const nextUrl = searchParams.get('next') ?? '/';
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -19,7 +21,7 @@ export default function LoginPage() {
     try {
       const { data } = await api.post<{ token: string; user: AuthUser }>('/auth/login', { email, password });
       login(data.token, data.user);
-      navigate('/');
+      navigate(nextUrl);
     } catch {
       setError('Invalid email or password');
     } finally {
