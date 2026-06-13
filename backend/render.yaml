@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: disa-qr-verify-api
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: MUNICIPALITY_NAME
+        value: Khammam
+      - key: LATE_THRESHOLD_IST
+        value: "07:00"
+      - key: NODE_ENV
+        value: production
