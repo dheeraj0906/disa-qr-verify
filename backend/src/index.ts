@@ -67,9 +67,12 @@ app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 // ── Error handler ─────────────────────────────────────────────────────────────
 app.use(errorHandler);
 
-const PORT = Number(process.env.PORT) || 4000;
-app.listen(PORT, () => {
-  console.log(`DISA QR Verify API running on port ${PORT}`);
-});
-
 export default app;
+
+// Only start listening when this file is the entrypoint (not when imported by tests)
+if (require.main === module) {
+  const PORT = Number(process.env.PORT) || 4000;
+  app.listen(PORT, () => {
+    console.log(`DISA QR Verify API running on port ${PORT}`);
+  });
+}

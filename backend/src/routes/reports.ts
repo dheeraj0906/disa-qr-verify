@@ -1,17 +1,26 @@
 import { Router, Response, NextFunction } from 'express';
-import { Parser } from 'json2csv';
 import { pool } from '../utils/db';
 import { authenticate, requireRole } from '../middleware/auth';
 
 const router = Router();
 
-function sendCSV(res: Response, filename: string, rows: object[]) {
+function toCSV(rows: Record<string, unknown>[]): string {
+  if (rows.length === 0) return '';
+  const headers = Object.keys(rows[0]);
+  const escape = (v: unknown) => {
+    const s = v == null ? '' : String(v);
+    return s.includes(',') || s.includes('"') || s.includes('\n')
+      ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+  const lines = [headers.join(','), ...rows.map((r) => headers.map((h) => escape(r[h])).join(','))];
+  return lines.join('\r\n');
+}
+
+function sendCSV(res: Response, filename: string, rows: Record<string, unknown>[]) {
   if (rows.length === 0) { res.json([]); return; }
-  const parser = new Parser({ fields: Object.keys(rows[0]) });
-  const csv = parser.parse(rows);
   res.setHeader('Content-Type', 'text/csv');
   res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-  res.send(csv);
+  res.send(toCSV(rows));
 }
 
 router.get('/task-logs', authenticate, requireRole('super_admin'),
