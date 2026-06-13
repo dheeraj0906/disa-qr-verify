@@ -146,6 +146,39 @@ router.get('/my', authenticate, requireRole('field_worker', 'super_admin'),
   }
 );
 
+// Verifier's own history (logs they have already actioned)
+router.get('/verified', authenticate, requireRole('verifier', 'super_admin'),
+  async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.user!.userId;
+      const { from, to } = req.query as { from?: string; to?: string };
+
+      const params: unknown[] = [userId];
+      let extra = '';
+      if (from) { params.push(from); extra += ` AND tl.verified_at >= $${params.length}::date`; }
+      if (to)   { params.push(to);   extra += ` AND tl.verified_at <  ($${params.length}::date + 1)`; }
+
+      const { rows } = await pool.query(
+        `SELECT tl.*, w.name AS worker_name, s.name AS stretch_name,
+                c.type AS checkpoint_type, s.color_code,
+                tl.task_completion_time::text AS duration,
+                u.name AS verified_by_name
+         FROM task_logs tl
+         JOIN workers w     ON w.id = tl.worker_id
+         JOIN checkpoints c ON c.id = tl.checkpoint_id
+         JOIN stretches s   ON s.id = c.stretch_id
+         JOIN users u       ON u.id = tl.verified_by
+         WHERE tl.verified_by=$1
+           AND tl.verification_status IN ('approved','rejected')
+           ${extra}
+         ORDER BY tl.verified_at DESC LIMIT 100`,
+        params
+      );
+      res.json(rows);
+    } catch (err) { next(err); }
+  }
+);
+
 // Approve / Reject
 router.post('/:id/verify', authenticate, requireRole('verifier', 'super_admin'), validate(verifySchema),
   async (req: AuthRequest, res: Response, next: NextFunction) => {

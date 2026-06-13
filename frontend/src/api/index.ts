@@ -72,6 +72,8 @@ export const taskLogsApi = {
   my: () => api.get<TaskLog[]>('/task-logs/my'),
   verify: (id: string, action: 'approved' | 'rejected', remark?: string) =>
     api.post(`/task-logs/${id}/verify`, { action, remark }),
+  verifiedBy: (from?: string, to?: string) =>
+    api.get<TaskLog[]>('/task-logs/verified', { params: { from, to } }),
 };
 
 // ── Attendance ────────────────────────────────────────────────────────────────

@@ -63,6 +63,7 @@ export interface TaskLog {
   stretch_name?: string;
   checkpoint_type?: string;
   color_code?: string;
+  verified_by_name?: string;
 }
 
 export interface AttendanceRecord {
