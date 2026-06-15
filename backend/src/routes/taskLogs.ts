@@ -2,6 +2,7 @@ import { Router, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { pool } from '../utils/db';
 import { authenticate, requireRole, AuthRequest } from '../middleware/auth';
+import { sendToVerifiers } from '../utils/pushNotification';
 import { validate } from '../middleware/validate';
 
 const router = Router();
@@ -12,8 +13,8 @@ const taskLogSchema = z.object({
   scan_type: z.enum(['check-in', 'progress', 'completion']),
   lat: z.number().optional(),
   lng: z.number().optional(),
-  before_photo_url: z.string().url().optional(),
-  after_photo_url: z.string().url().optional(),
+  before_photo_url: z.string().optional(),
+  after_photo_url: z.string().optional(),
 });
 
 const verifySchema = z.object({
@@ -83,6 +84,25 @@ router.post('/', authenticate, requireRole('field_worker', 'super_admin'), valid
            WHERE id=(SELECT stretch_id FROM checkpoints WHERE id=$1) AND status='in_progress'`,
           [checkpoint_id]
         );
+
+        // Notify verifiers — fire-and-forget, non-blocking
+        const stretchRow = await pool.query(
+          `SELECT s.name, w.name AS worker_name
+           FROM checkpoints c
+           JOIN stretches s ON s.id = c.stretch_id
+           JOIN workers w   ON w.id = $2
+           WHERE c.id = $1`,
+          [checkpoint_id, workerId]
+        );
+        if (stretchRow.rows[0]) {
+          const { name: stretchName, worker_name: workerName } = stretchRow.rows[0] as { name: string; worker_name: string };
+          sendToVerifiers(
+            pool,
+            'New Task Pending Review',
+            `${workerName} submitted completion proof for ${stretchName}`,
+            { logId: rows[0].id },
+          ).catch(() => {});
+        }
       }
 
       res.status(201).json(rows[0]);

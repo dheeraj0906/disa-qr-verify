@@ -76,4 +76,22 @@ router.delete('/:id', authenticate, requireRole('super_admin'),
   }
 );
 
+// Save Expo push token for the logged-in user (mobile app)
+router.post('/push-token', authenticate,
+  async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+      const { token } = req.body as { token?: string };
+      if (!token || !token.startsWith('ExponentPushToken[')) {
+        res.status(400).json({ error: 'Invalid push token' });
+        return;
+      }
+      await pool.query(
+        `UPDATE users SET expo_push_token=$1 WHERE id=$2`,
+        [token, req.user!.userId]
+      );
+      res.json({ ok: true });
+    } catch (err) { next(err); }
+  }
+);
+
 export default router;

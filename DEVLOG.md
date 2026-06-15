@@ -3,7 +3,7 @@
 > Maintained by Claude Code. This file is updated every time a code change is made.  
 > Project: Municipal sanitation QR verification system for Khammam Municipal Corporation  
 > Repository: https://github.com/dheeraj0906/disa-qr-verify  
-> Last updated: 2026-06-14
+> Last updated: 2026-06-15
 
 ---
 
@@ -197,6 +197,13 @@ DISA QR Verify is a full-stack GIS-based field task verification system commissi
 | 10 | Leaflet default marker PNGs missing | Bundler doesn't resolve marker assets | Use `L.circleMarker` + `L.divIcon` throughout |
 | 11 | Render build failed in 19s | `NODE_ENV=production` caused `npm install` to skip devDeps (TypeScript, ts-node) | Changed to `npm install --include=dev` in build command |
 | 12 | Stretches PUT ignored GPS updates | Backend route only updated name/color/road_name | Updated PUT to construct PostGIS `ST_MakePoint` expressions for start/end |
+| 13 | Mobile: stretch never transitions to `in_progress` | `scan.tsx` called `/scan/checkpoint/:id` (context only) but never submitted a check-in task log | Added `taskLogsApi.submit({ scan_type: 'check-in' })` after successful start QR scan |
+| 14 | Mobile: photos never uploaded to Cloudinary | `uploadApi.photo()` called `/upload` which doesn't exist on backend | Created `utils/cloudinary.ts` with direct unsigned upload; `upload.tsx` now uses it |
+| 15 | Mobile: worker home showed all stretches | No filtering by assigned stretch | Fetch workers list, find current worker's `assigned_stretch_id`, filter stretch list |
+| 16 | Mobile: `POST /users/push-token` 404 | Endpoint didn't exist | Added to `users.ts`; migration adds `expo_push_token` column |
+| 17 | Mobile: physical QR stickers didn't open app | No Universal Link / App Link config | Intent filters in `app.json`; AASA + assetlinks.json on Netlify domain |
+| 18 | Backend: photo URL validation rejected `file://` URIs | Zod `.string().url()` too strict | Changed to `.string().optional()` — allows any string, Cloudinary URLs in prod |
+| 19 | Mobile: task-location screen didn't update after start QR scan | `useEffect([], [])` only runs on mount; returning from scan screen didn't trigger reload | Replaced with `useFocusEffect(useCallback(..., [stretchId]))` |
 
 ---
 
@@ -290,6 +297,12 @@ Health check: `GET https://disa-qr-verify-api.onrender.com/health` → `{"status
 
 | Date | Description | Files Changed |
 |---|---|---|
+| 2026-06-15 | Fix task-location screen not refreshing after returning from QR scan — replaced one-time useEffect with useFocusEffect so stretch status updates immediately when the worker comes back | `mobile/src/app/(worker)/task-location.tsx` |
+| 2026-06-15 | Deep links: root layout intercepts Linking URLs and routes to scan/* screens; Android intent filters + iOS associatedDomains in app.json; AASA + assetlinks.json in frontend/public/.well-known; netlify.toml Content-Type header for AASA | `mobile/src/app/_layout.tsx`, `mobile/src/app/scan/_layout.tsx`, `mobile/src/app/scan/checkpoint/[id].tsx`, `mobile/src/app/scan/worker/[id].tsx`, `mobile/app.json`, `frontend/public/.well-known/apple-app-site-association`, `frontend/public/.well-known/assetlinks.json`, `frontend/netlify.toml` |
+| 2026-06-15 | Push notifications: migration adds expo_push_token column; sendToVerifiers utility calls Expo push API; POST /users/push-token saves token; taskLogs POST fires push to verifiers on completion; relaxed photo URL validation to allow local URIs | `backend/migrations/002_push_tokens.sql`, `backend/src/utils/pushNotification.ts`, `backend/src/routes/users.ts`, `backend/src/routes/taskLogs.ts` |
+| 2026-06-15 | GET /workers/me endpoint for current user's worker profile; mobile workersApi.me() in endpoints; worker home uses /me instead of fetching full list | `backend/src/routes/workers.ts`, `mobile/src/lib/endpoints.ts`, `mobile/src/app/(worker)/index.tsx` |
+| 2026-06-15 | Cloudinary .env: mobile/.env + .env.example with EXPO_PUBLIC_* vars; .env added to mobile .gitignore; EAS build: improved eas.json with autoIncrement + submit profile; app.json extra.eas.projectId placeholder | `mobile/.env`, `mobile/.env.example`, `mobile/.gitignore`, `mobile/eas.json`, `mobile/app.json` |
+| 2026-06-15 | Mobile app: fix check-in task log submission in scan screen (stretch state machine was broken), fix Cloudinary upload (replaced non-existent /upload endpoint with direct Cloudinary upload), fix worker home to show only assigned stretch, add before/after dual-photo upload UX, add worker history + attendance screens, add verifier history screen, add `verifiedBy()` endpoint, register all Stack screens in layouts, remove dead explore.tsx | `mobile/src/utils/cloudinary.ts`, `mobile/src/app/(worker)/scan.tsx`, `mobile/src/app/(worker)/upload.tsx`, `mobile/src/app/(worker)/index.tsx`, `mobile/src/app/(worker)/_layout.tsx`, `mobile/src/app/(worker)/history.tsx`, `mobile/src/app/(worker)/attendance.tsx`, `mobile/src/app/(verifier)/_layout.tsx`, `mobile/src/app/(verifier)/history.tsx`, `mobile/src/app/(admin)/_layout.tsx`, `mobile/src/lib/endpoints.ts` |
 | 2026-06-14 | Extended CLAUDE.md with DEVLOG knowledge: tech stack rationale, seed data details, pgBouncer specifics, all 12 known bugs table, test coverage, full Render env vars | `CLAUDE.md` |
 | 2026-06-14 | Rewrote CLAUDE.md as comprehensive project memory: full DB schema, all API endpoints with implementations, PostGIS conventions, type definitions, key patterns and gotchas, deployment notes | `CLAUDE.md` |
 | 2026-06-14 | Fixed Render build command — `--include=dev` to keep TypeScript compiler when `NODE_ENV=production` | `backend/render.yaml` |

@@ -45,6 +45,25 @@ router.post('/', authenticate, requireRole('super_admin'), validate(workerSchema
   }
 );
 
+// Current worker's own profile (field_worker uses this to find their assigned stretch)
+router.get('/me', authenticate,
+  async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+      const workerId = req.user!.workerId;
+      if (!workerId) { res.status(404).json({ error: 'No worker profile linked to this account' }); return; }
+      const { rows } = await pool.query(
+        `SELECT w.*, s.name AS stretch_name
+         FROM workers w
+         LEFT JOIN stretches s ON s.id = w.assigned_stretch_id
+         WHERE w.id=$1::uuid`,
+        [workerId]
+      );
+      if (!rows[0]) { res.status(404).json({ error: 'Worker not found' }); return; }
+      res.json(rows[0]);
+    } catch (err) { next(err); }
+  }
+);
+
 router.get('/:id/qr', authenticate, requireRole('super_admin'),
   async (req, res: Response, next: NextFunction) => {
     try {

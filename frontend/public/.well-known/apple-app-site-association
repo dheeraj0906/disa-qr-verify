@@ -1,0 +1,15 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["TEAMID.com.disa.qrverify"],
+        "components": [
+          {
+            "/": "/scan/*",
+            "comment": "Matches all scan deep-link routes"
+          }
+        ]
+      }
+    ]
+  }
+}

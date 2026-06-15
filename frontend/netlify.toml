@@ -15,3 +15,9 @@
   from   = "/*"
   to     = "/index.html"
   status = 200
+
+# iOS Universal Links — AASA must be served as application/json without extension
+[[headers]]
+  for = "/.well-known/apple-app-site-association"
+  [headers.values]
+    Content-Type = "application/json"

@@ -6,3 +6,6 @@ dist/
 Thumbs.db
 coverage/
 *.tsbuildinfo
+
+# Local Netlify folder
+.netlify
