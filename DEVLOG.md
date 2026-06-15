@@ -3,7 +3,7 @@
 > Maintained by Claude Code. This file is updated every time a code change is made.  
 > Project: Municipal sanitation QR verification system for Khammam Municipal Corporation  
 > Repository: https://github.com/dheeraj0906/disa-qr-verify  
-> Last updated: 2026-06-15
+> Last updated: 2026-06-16
 
 ---
 
@@ -297,6 +297,7 @@ Health check: `GET https://disa-qr-verify-api.onrender.com/health` → `{"status
 
 | Date | Description | Files Changed |
 |---|---|---|
+| 2026-06-16 | Bake Cloudinary + API env vars into EAS build profiles (preview + production) so APK has correct values without relying on local .env | `mobile/eas.json` |
 | 2026-06-15 | Fix task-location screen not refreshing after returning from QR scan — replaced one-time useEffect with useFocusEffect so stretch status updates immediately when the worker comes back | `mobile/src/app/(worker)/task-location.tsx` |
 | 2026-06-15 | Deep links: root layout intercepts Linking URLs and routes to scan/* screens; Android intent filters + iOS associatedDomains in app.json; AASA + assetlinks.json in frontend/public/.well-known; netlify.toml Content-Type header for AASA | `mobile/src/app/_layout.tsx`, `mobile/src/app/scan/_layout.tsx`, `mobile/src/app/scan/checkpoint/[id].tsx`, `mobile/src/app/scan/worker/[id].tsx`, `mobile/app.json`, `frontend/public/.well-known/apple-app-site-association`, `frontend/public/.well-known/assetlinks.json`, `frontend/netlify.toml` |
 | 2026-06-15 | Push notifications: migration adds expo_push_token column; sendToVerifiers utility calls Expo push API; POST /users/push-token saves token; taskLogs POST fires push to verifiers on completion; relaxed photo URL validation to allow local URIs | `backend/migrations/002_push_tokens.sql`, `backend/src/utils/pushNotification.ts`, `backend/src/routes/users.ts`, `backend/src/routes/taskLogs.ts` |

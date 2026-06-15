@@ -92,11 +92,6 @@
         { "googleMapsApiKey": "" }
       ]
     ],
-    "extra": {
-      "eas": {
-        "projectId": "FILL-IN: run `eas build:configure` to generate this"
-      }
-    },
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true

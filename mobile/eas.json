@@ -20,7 +20,9 @@
         "simulator": false
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": ""
+        "EXPO_PUBLIC_API_URL": "https://disa-qr-verify-api.onrender.com",
+        "EXPO_PUBLIC_CLOUDINARY_CLOUD_NAME": "dso7astch",
+        "EXPO_PUBLIC_CLOUDINARY_UPLOAD_PRESET": "jvlpadn6"
       }
     },
     "production": {
@@ -29,7 +31,9 @@
         "buildType": "aab"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": ""
+        "EXPO_PUBLIC_API_URL": "https://disa-qr-verify-api.onrender.com",
+        "EXPO_PUBLIC_CLOUDINARY_CLOUD_NAME": "dso7astch",
+        "EXPO_PUBLIC_CLOUDINARY_UPLOAD_PRESET": "jvlpadn6"
       }
     }
   },
