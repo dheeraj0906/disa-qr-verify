@@ -8,7 +8,9 @@
       "developmentClient": true,
       "distribution": "internal",
       "env": {
-        "EXPO_PUBLIC_API_URL": ""
+        "EXPO_PUBLIC_API_URL": "https://disa-qr-verify-api.onrender.com",
+        "EXPO_PUBLIC_CLOUDINARY_CLOUD_NAME": "dso7astch",
+        "EXPO_PUBLIC_CLOUDINARY_UPLOAD_PRESET": "jvlpadn6"
       }
     },
     "preview": {
@@ -28,7 +30,7 @@
     "production": {
       "autoIncrement": true,
       "android": {
-        "buildType": "aab"
+        "buildType": "app-bundle"
       },
       "env": {
         "EXPO_PUBLIC_API_URL": "https://disa-qr-verify-api.onrender.com",
