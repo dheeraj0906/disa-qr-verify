@@ -3,7 +3,7 @@
 > Maintained by Claude Code. This file is updated every time a code change is made.  
 > Project: Municipal sanitation QR verification system for Khammam Municipal Corporation  
 > Repository: https://github.com/dheeraj0906/disa-qr-verify  
-> Last updated: 2026-06-17
+> Last updated: 2026-06-17 (testing)
 
 ---
 
@@ -299,6 +299,7 @@ Health check: `GET https://disa-qr-verify-api.onrender.com/health` → `{"status
 
 | Date | Description | Files Changed |
 |---|---|---|
+| 2026-06-17 | Full automated test sweep — backend API, auth guards, state machine, reject flow, QR, reports; documented in TESTING.md | `TESTING.md` |
 | 2026-06-17 | Fix POST /api/task-logs pgBouncer type inference error — add ::timestamptz cast on $7 and ::uuid casts in verify UPDATE | `backend/src/routes/taskLogs.ts` |
 | 2026-06-17 | Remove biometric auth from mobile app — fingerprint prompt was blocking login; password-only login for now | `mobile/src/app/_layout.tsx`, `mobile/src/app/(auth)/login.tsx` |
 | 2026-06-16 | Bake Cloudinary + API env vars into EAS build profiles (preview + production) so APK has correct values without relying on local .env | `mobile/eas.json` |
