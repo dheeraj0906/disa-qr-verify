@@ -204,6 +204,7 @@ DISA QR Verify is a full-stack GIS-based field task verification system commissi
 | 17 | Mobile: physical QR stickers didn't open app | No Universal Link / App Link config | Intent filters in `app.json`; AASA + assetlinks.json on Netlify domain |
 | 18 | Backend: photo URL validation rejected `file://` URIs | Zod `.string().url()` too strict | Changed to `.string().optional()` — allows any string, Cloudinary URLs in prod |
 | 19 | Mobile: task-location screen didn't update after start QR scan | `useEffect([], [])` only runs on mount; returning from scan screen didn't trigger reload | Replaced with `useFocusEffect(useCallback(..., [stretchId]))` |
+| 21 | `POST /api/task-logs` fails with "could not determine data type of parameter $7" | `taskStartedAt` can be null; pgBouncer can't infer timestamptz from null without explicit cast | Added `$7::timestamptz` cast in INSERT; also added `::uuid` casts to `verified_by` and `id` in verify UPDATE |
 | 20 | Mobile: fingerprint prompt appeared on launch and blocked login | `_layout.tsx` called `tryBiometric()` (unawaited, result ignored) on every auth-state change; `login.tsx` also had a second biometric trigger | Removed all biometric code — password-only login for now |
 
 ---
@@ -298,6 +299,7 @@ Health check: `GET https://disa-qr-verify-api.onrender.com/health` → `{"status
 
 | Date | Description | Files Changed |
 |---|---|---|
+| 2026-06-17 | Fix POST /api/task-logs pgBouncer type inference error — add ::timestamptz cast on $7 and ::uuid casts in verify UPDATE | `backend/src/routes/taskLogs.ts` |
 | 2026-06-17 | Remove biometric auth from mobile app — fingerprint prompt was blocking login; password-only login for now | `mobile/src/app/_layout.tsx`, `mobile/src/app/(auth)/login.tsx` |
 | 2026-06-16 | Bake Cloudinary + API env vars into EAS build profiles (preview + production) so APK has correct values without relying on local .env | `mobile/eas.json` |
 | 2026-06-15 | Fix task-location screen not refreshing after returning from QR scan — replaced one-time useEffect with useFocusEffect so stretch status updates immediately when the worker comes back | `mobile/src/app/(worker)/task-location.tsx` |

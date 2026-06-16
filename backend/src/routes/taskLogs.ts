@@ -63,7 +63,7 @@ router.post('/', authenticate, requireRole('field_worker', 'super_admin'), valid
            (checkpoint_id, worker_id, vehicle_id, scan_type, location,
             before_photo_url, after_photo_url, task_started_at, task_completion_time, verification_status)
          VALUES
-           ($1,$2,$3,$4,${locExpr},$5,$6,$7,
+           ($1::uuid,$2::uuid,$3::uuid,$4,${locExpr},$5,$6,$7::timestamptz,
             CASE WHEN $7 IS NOT NULL THEN (now() - $7::timestamptz) ELSE NULL END,
             $8)
          RETURNING *`,
@@ -209,20 +209,20 @@ router.post('/:id/verify', authenticate, requireRole('verifier', 'super_admin'),
 
       const { rows } = await pool.query(
         `UPDATE task_logs
-         SET verification_status=$1, verified_by=$2, verified_at=now(), remark=$3
-         WHERE id=$4 RETURNING *, (SELECT stretch_id FROM checkpoints WHERE id=checkpoint_id) AS stretch_id`,
+         SET verification_status=$1, verified_by=$2::uuid, verified_at=now(), remark=$3
+         WHERE id=$4::uuid RETURNING *, (SELECT stretch_id FROM checkpoints WHERE id=checkpoint_id) AS stretch_id`,
         [action, userId, remark ?? null, id]
       );
       if (!rows[0]) { res.status(404).json({ error: 'Not found' }); return; }
 
       if (action === 'approved') {
         await pool.query(
-          `UPDATE stretches SET status='verified' WHERE id=$1 AND status='completed'`,
+          `UPDATE stretches SET status='verified' WHERE id=$1::uuid AND status='completed'`,
           [rows[0].stretch_id]
         );
       } else {
         await pool.query(
-          `UPDATE stretches SET status='in_progress' WHERE id=$1`,
+          `UPDATE stretches SET status='in_progress' WHERE id=$1::uuid`,
           [rows[0].stretch_id]
         );
       }
