@@ -4,7 +4,6 @@ import { View, Text } from 'react-native';
 import { Stack, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
-import * as LocalAuthentication from 'expo-local-authentication';
 import * as Notifications from 'expo-notifications';
 import * as Linking from 'expo-linking';
 import NetInfo from '@react-native-community/netinfo';
@@ -69,7 +68,6 @@ export default function RootLayout() {
       return;
     }
 
-    tryBiometric();
     registerPush();
 
     // Process any pending deep link before falling back to role redirect
@@ -96,17 +94,6 @@ export default function RootLayout() {
       return true;
     }
     return false;
-  }
-
-  async function tryBiometric() {
-    const hasHardware = await LocalAuthentication.hasHardwareAsync();
-    const isEnrolled  = await LocalAuthentication.isEnrolledAsync();
-    if (!hasHardware || !isEnrolled) return;
-    await LocalAuthentication.authenticateAsync({
-      promptMessage: 'Login to DISA QR Verify',
-      fallbackLabel: 'Use password',
-      disableDeviceFallback: false,
-    });
   }
 
   async function registerPush() {

@@ -6,8 +6,6 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import * as LocalAuthentication from 'expo-local-authentication';
-import * as SecureStore from 'expo-secure-store';
 import { useAuthStore } from '@/store/authStore';
 import { authApi } from '@/lib/endpoints';
 
@@ -22,25 +20,6 @@ export default function LoginScreen() {
   const [loading, setLoading]     = useState(false);
   const [slowHint, setSlowHint]   = useState(false);
   const slowTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // Biometric auto-login if token already saved
-  useEffect(() => {
-    (async () => {
-      const saved = await SecureStore.getItemAsync('disa_jwt');
-      if (!saved) return;
-      const hasHardware = await LocalAuthentication.hasHardwareAsync();
-      const isEnrolled  = await LocalAuthentication.isEnrolledAsync();
-      if (!hasHardware || !isEnrolled) return;
-      const result = await LocalAuthentication.authenticateAsync({
-        promptMessage: 'Login to DISA QR Verify',
-        fallbackLabel: 'Use password',
-      });
-      if (result.success) {
-        // Token already in store — root layout will redirect
-        router.replace('/');
-      }
-    })();
-  }, []);
 
   useEffect(() => {
     if (loading) {

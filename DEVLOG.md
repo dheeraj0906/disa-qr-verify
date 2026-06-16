@@ -3,7 +3,7 @@
 > Maintained by Claude Code. This file is updated every time a code change is made.  
 > Project: Municipal sanitation QR verification system for Khammam Municipal Corporation  
 > Repository: https://github.com/dheeraj0906/disa-qr-verify  
-> Last updated: 2026-06-16
+> Last updated: 2026-06-17
 
 ---
 
@@ -204,6 +204,7 @@ DISA QR Verify is a full-stack GIS-based field task verification system commissi
 | 17 | Mobile: physical QR stickers didn't open app | No Universal Link / App Link config | Intent filters in `app.json`; AASA + assetlinks.json on Netlify domain |
 | 18 | Backend: photo URL validation rejected `file://` URIs | Zod `.string().url()` too strict | Changed to `.string().optional()` — allows any string, Cloudinary URLs in prod |
 | 19 | Mobile: task-location screen didn't update after start QR scan | `useEffect([], [])` only runs on mount; returning from scan screen didn't trigger reload | Replaced with `useFocusEffect(useCallback(..., [stretchId]))` |
+| 20 | Mobile: fingerprint prompt appeared on launch and blocked login | `_layout.tsx` called `tryBiometric()` (unawaited, result ignored) on every auth-state change; `login.tsx` also had a second biometric trigger | Removed all biometric code — password-only login for now |
 
 ---
 
@@ -297,6 +298,7 @@ Health check: `GET https://disa-qr-verify-api.onrender.com/health` → `{"status
 
 | Date | Description | Files Changed |
 |---|---|---|
+| 2026-06-17 | Remove biometric auth from mobile app — fingerprint prompt was blocking login; password-only login for now | `mobile/src/app/_layout.tsx`, `mobile/src/app/(auth)/login.tsx` |
 | 2026-06-16 | Bake Cloudinary + API env vars into EAS build profiles (preview + production) so APK has correct values without relying on local .env | `mobile/eas.json` |
 | 2026-06-15 | Fix task-location screen not refreshing after returning from QR scan — replaced one-time useEffect with useFocusEffect so stretch status updates immediately when the worker comes back | `mobile/src/app/(worker)/task-location.tsx` |
 | 2026-06-15 | Deep links: root layout intercepts Linking URLs and routes to scan/* screens; Android intent filters + iOS associatedDomains in app.json; AASA + assetlinks.json in frontend/public/.well-known; netlify.toml Content-Type header for AASA | `mobile/src/app/_layout.tsx`, `mobile/src/app/scan/_layout.tsx`, `mobile/src/app/scan/checkpoint/[id].tsx`, `mobile/src/app/scan/worker/[id].tsx`, `mobile/app.json`, `frontend/public/.well-known/apple-app-site-association`, `frontend/public/.well-known/assetlinks.json`, `frontend/netlify.toml` |
